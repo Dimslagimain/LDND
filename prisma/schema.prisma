@@ -1,47 +1,38 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client"
   output   = "../lib/generated/prisma"
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mysql"
 }
 
-// ============================================
-// Aircraft Master Table
-// ============================================
 model Aircraft {
-  id          String   @id @default(uuid()) @db.Uuid
-  acType      String   @map("ac_type") @db.VarChar(20)       // e.g. 'B737-800', 'A330-300'
-  acTypeGroup String   @map("ac_type_group") @db.VarChar(10) // e.g. 'B737', 'A320', 'A330', 'B777'
-  registration String  @unique @db.VarChar(10)                // e.g. 'PK-GDC'
-  airline     String   @db.VarChar(5)                         // 'GA' or 'QG'
-  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz()
+  id           String    @id @default(uuid()) @db.Char(36)
+  acType       String    @map("ac_type") @db.VarChar(100)
+  acTypeGroup  String    @map("ac_type_group") @db.VarChar(50)
+  registration String    @unique @db.VarChar(20)
+  airline      String    @db.VarChar(20)
+  createdAt    DateTime? @default(now()) @map("created_at")
 
-  carpetItems CarpetItem[]
+  carpetItems  CarpetItem[]
 
   @@map("aircraft")
 }
 
-// ============================================
-// Carpet Items (one per aircraft per carpet type)
-// ============================================
 model CarpetItem {
-  id             String   @id @default(uuid()) @db.Uuid
-  aircraftId     String   @map("aircraft_id") @db.Uuid
-  carpetType     String   @map("carpet_type") @db.VarChar(15) // 'Aisle' or 'Underseat'
-  intervalMonths Int      @map("interval_months")
+  id             String    @id @default(uuid()) @db.Char(36)
+  aircraftId     String    @map("aircraft_id") @db.Char(36)
+  carpetType     String    @map("carpet_type") @db.VarChar(50)
+  intervalMonths Int       @map("interval_months")
   lastDone       DateTime? @map("last_done") @db.Date
   nextDue        DateTime? @map("next_due") @db.Date
-  remark         String?  @db.Text
-  vendor         String?  @db.VarChar(50)
-  coatroom       String?  @db.VarChar(50)
-  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz()
+  remark         String?   @db.VarChar(50)
+  vendor         String?   @db.VarChar(50)
+  coatroom       String?   @db.VarChar(50)
+  createdAt      DateTime? @default(now()) @map("created_at")
 
-  aircraft       Aircraft @relation(fields: [aircraftId], references: [id], onDelete: Cascade)
+  aircraft       Aircraft  @relation(fields: [aircraftId], references: [id], onDelete: Cascade)
   replacementHistory ReplacementHistory[]
 
   @@unique([aircraftId, carpetType])
@@ -50,16 +41,13 @@ model CarpetItem {
   @@map("carpet_items")
 }
 
-// ============================================
-// Replacement History (each past replacement)
-// ============================================
 model ReplacementHistory {
-  id           String   @id @default(uuid()) @db.Uuid
-  carpetItemId String   @map("carpet_item_id") @db.Uuid
-  doneNumber   Int      @map("done_number")
-  doneDate     DateTime @map("done_date") @db.Date
-  isPremature  Boolean  @default(false) @map("is_premature")
-  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz()
+  id           String    @id @default(uuid()) @db.Char(36)
+  carpetItemId String    @map("carpet_item_id") @db.Char(36)
+  doneNumber   Int       @map("done_number")
+  doneDate     DateTime  @map("done_date") @db.Date
+  isPremature  Boolean   @default(false) @map("is_premature")
+  createdAt    DateTime? @default(now()) @map("created_at")
 
   carpetItem   CarpetItem @relation(fields: [carpetItemId], references: [id], onDelete: Cascade)
 
@@ -67,29 +55,23 @@ model ReplacementHistory {
   @@map("replacement_history")
 }
 
-// ============================================
-// Rawmat Quantity (manual planner input)
-// ============================================
 model RawmatQty {
-  id        String   @id @default(uuid()) @db.Uuid
-  airline   String   @unique @db.VarChar(5) // 'GA' or 'QG'
-  qty       Float    @default(0)
-  unit      String   @default("YD") @db.VarChar(10)
-  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz()
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
+  id        String    @id @default(uuid()) @db.Char(36)
+  airline   String    @unique @db.VarChar(50)
+  qty       Float     @default(0)
+  unit      String    @default("YD") @db.VarChar(50)
+  updatedAt DateTime? @updatedAt @map("updated_at")
+  createdAt DateTime? @default(now()) @map("created_at")
 
   @@map("rawmat_qty")
 }
 
-// ============================================
-// Carpet Interval Master (Default Rules)
-// ============================================
 model CarpetIntervalMaster {
-  id          String   @id @default(uuid()) @db.Uuid
-  acTypeGroup String   @map("ac_type_group") @db.VarChar(10) // 'B737', 'A330', dll
-  carpetType  String   @map("carpet_type") @db.VarChar(15) // 'Aisle' or 'Underseat'
-  interval    Int      // 6, 12, 18 (in months)
-  
+  id          String  @id @default(uuid()) @db.Char(36)
+  acTypeGroup String  @map("ac_type_group") @db.VarChar(50)
+  carpetType  String  @map("carpet_type") @db.VarChar(50)
+  interval    Int
+
   @@unique([acTypeGroup, carpetType])
   @@map("carpet_interval_master")
 }

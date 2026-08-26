@@ -1,8 +1,8 @@
 import 'dotenv/config'
 import { PrismaClient } from '../lib/generated/prisma/client.js'
-import { PrismaPg } from '@prisma/adapter-pg'
+import { PrismaMariaDb } from '@prisma/adapter-mariadb'
 
-const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL! })
+const adapter = new PrismaMariaDb(process.env.DATABASE_URL!)
 const prisma = new PrismaClient({ adapter })
 
 const INTERVALS: Record<string, Record<string, number>> = {
@@ -38,7 +38,7 @@ async function main() {
         }
     }
 
-    console.log('Done.')
+    console.log('Done seeding intervals!')
 }
 
 main()
