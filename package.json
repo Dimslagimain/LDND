@@ -6,7 +6,8 @@
     "dev": "next dev -H 0.0.0.0",
     "build": "npx prisma generate && next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@planetscale/database": "^1.20.1",

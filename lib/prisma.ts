@@ -7,7 +7,7 @@ const globalForPrisma = globalThis as unknown as {
 }
 
 function createPrismaClient() {
-    const connectionString = process.env.DATABASE_URL || 'mysql://root:@localhost:3306/ldnd-carpet'
+    const connectionString = process.env.DATABASE_URL || 'mysql://root:@localhost:3306/ldnd'
     const adapter = new PrismaMariaDb(connectionString)
     return new PrismaClient({ adapter })
 }
