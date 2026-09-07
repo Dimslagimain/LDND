@@ -170,6 +170,7 @@ export function EditDetailsModal({ carpetItem, registration, onClose, onSaved }:
     carpetItem: CarpetItemData; registration: string; onClose: () => void; onSaved: () => void
 }) {
     const [remark, setRemark] = useState(carpetItem.remark ?? '')
+    const [acStatus, setAcStatus] = useState(carpetItem.acStatus ?? 'ACTIVE')
     const [coatroom, setCoatroom] = useState(carpetItem.coatroom ?? '')
     const [vendor, setVendor] = useState(carpetItem.vendor ?? '')
     const [saving, setSaving] = useState(false)
@@ -183,6 +184,7 @@ export function EditDetailsModal({ carpetItem, registration, onClose, onSaved }:
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     remark: remark || null,
+                    acStatus: acStatus || 'ACTIVE',
                     coatroom: coatroom || null,
                     vendor: vendor || null
                 }),
@@ -202,6 +204,36 @@ export function EditDetailsModal({ carpetItem, registration, onClose, onSaved }:
             <form onSubmit={handleSubmit}>
                 <Field label="Remark">
                     <input value={remark} onChange={e => setRemark(e.target.value)} style={inputStyle} placeholder="Kosong" />
+                </Field>
+                <Field label="Status Pesawat">
+                    <div style={{ display: 'flex', gap: 8 }}>
+                        <button
+                            type="button"
+                            onClick={() => setAcStatus('ACTIVE')}
+                            style={{
+                                flex: 1, padding: '8px 12px', borderRadius: 8, fontSize: 13, fontWeight: 700,
+                                cursor: 'pointer', outline: 'none', transition: 'all 0.2s ease',
+                                background: acStatus === 'ACTIVE' ? C.greenLight : C.surface,
+                                color: acStatus === 'ACTIVE' ? C.green : C.muted,
+                                border: `1px solid ${acStatus === 'ACTIVE' ? C.greenBorder : C.border}`
+                            }}
+                        >
+                            ● ACTIVE
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setAcStatus('PROLONG')}
+                            style={{
+                                flex: 1, padding: '8px 12px', borderRadius: 8, fontSize: 13, fontWeight: 700,
+                                cursor: 'pointer', outline: 'none', transition: 'all 0.2s ease',
+                                background: acStatus === 'PROLONG' ? C.warningLight : C.surface,
+                                color: acStatus === 'PROLONG' ? C.warningDark : C.muted,
+                                border: `1px solid ${acStatus === 'PROLONG' ? C.warningBorder : C.border}`
+                            }}
+                        >
+                            ● PROLONG
+                        </button>
+                    </div>
                 </Field>
                 <Field label="Coatroom">
                     <input value={coatroom} onChange={e => setCoatroom(e.target.value)} style={inputStyle} placeholder="Kosong" />

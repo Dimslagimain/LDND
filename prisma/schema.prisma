@@ -28,11 +28,12 @@ model CarpetItem {
   lastDone       DateTime? @map("last_done") @db.Date
   nextDue        DateTime? @map("next_due") @db.Date
   remark         String?   @db.VarChar(50)
+  acStatus       String?   @default("ACTIVE") @map("ac_status") @db.VarChar(20)
   vendor         String?   @db.VarChar(50)
   coatroom       String?   @db.VarChar(50)
   createdAt      DateTime? @default(now()) @map("created_at")
 
-  aircraft       Aircraft  @relation(fields: [aircraftId], references: [id], onDelete: Cascade)
+  aircraft           Aircraft             @relation(fields: [aircraftId], references: [id], onDelete: Cascade)
   replacementHistory ReplacementHistory[]
 
   @@unique([aircraftId, carpetType])
@@ -49,7 +50,7 @@ model ReplacementHistory {
   isPremature  Boolean   @default(false) @map("is_premature")
   createdAt    DateTime? @default(now()) @map("created_at")
 
-  carpetItem   CarpetItem @relation(fields: [carpetItemId], references: [id], onDelete: Cascade)
+  carpetItem CarpetItem @relation(fields: [carpetItemId], references: [id], onDelete: Cascade)
 
   @@index([carpetItemId])
   @@map("replacement_history")
@@ -67,9 +68,9 @@ model RawmatQty {
 }
 
 model CarpetIntervalMaster {
-  id          String  @id @default(uuid()) @db.Char(36)
-  acTypeGroup String  @map("ac_type_group") @db.VarChar(50)
-  carpetType  String  @map("carpet_type") @db.VarChar(50)
+  id          String @id @default(uuid()) @db.Char(36)
+  acTypeGroup String @map("ac_type_group") @db.VarChar(50)
+  carpetType  String @map("carpet_type") @db.VarChar(50)
   interval    Int
 
   @@unique([acTypeGroup, carpetType])

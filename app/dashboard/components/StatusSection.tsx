@@ -117,7 +117,7 @@ function DetailTable({ items }: { items: DashboardData['nearDueItems'] }) {
                     <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
                         <thead>
                             <tr style={{ background: COLORS.borderLight, borderBottom: `1px solid ${COLORS.border}` }}>
-                                {['Registrasi', 'Tipe A/C', 'Carpet', 'Last Done', 'Next Due', 'Status'].map(h => (
+                                {['Registrasi', 'Tipe A/C', 'Carpet', 'Last Done', 'Next Due', 'Status Due', 'Status Pesawat'].map(h => (
                                     <th key={h} style={{ textAlign: 'left', padding: '10px 14px', fontSize: 11, fontWeight: 700, color: COLORS.muted, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{h}</th>
                                 ))}
                             </tr>
@@ -148,6 +148,16 @@ function DetailTable({ items }: { items: DashboardData['nearDueItems'] }) {
                                                 color: overdue ? COLORS.danger : COLORS.warningDark,
                                             }}>
                                                 {overdue ? `${Math.abs(days)}h lewat` : `${days}h lagi`}
+                                            </span>
+                                        </td>
+                                        <td style={{ padding: '10px 14px' }}>
+                                            <span style={{
+                                                padding: '2px 8px', borderRadius: 99, fontSize: 11, fontWeight: 700,
+                                                background: item.acStatus === 'PROLONG' ? COLORS.warningLight : COLORS.greenLight,
+                                                color: item.acStatus === 'PROLONG' ? COLORS.warningDark : COLORS.green,
+                                                border: `1px solid ${item.acStatus === 'PROLONG' ? COLORS.warningBorder : COLORS.greenBorder}`
+                                            }}>
+                                                {item.acStatus === 'PROLONG' ? 'PROLONG' : 'ACTIVE'}
                                             </span>
                                         </td>
                                     </tr>

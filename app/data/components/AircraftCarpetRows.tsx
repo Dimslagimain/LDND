@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Trash2, Edit } from 'lucide-react'
 import { C, fmtDate, daysUntil } from '../constants'
 import { NEAR_DUE_DAYS } from '@/lib/constants'
@@ -42,6 +42,13 @@ function CarpetRow({ item, ac, isFirst, isLast, rowSpan, onRefresh }: { item: Ca
     const [showDoneModal, setShowDoneModal] = useState(false)
     const [showEditModal, setShowEditModal] = useState(false)
     const [showHistoryModal, setShowHistoryModal] = useState(false)
+    const [currentStatus, setCurrentStatus] = useState<string>(item.acStatus ?? 'ACTIVE')
+    const [isUpdating, setIsUpdating] = useState(false)
+
+    // Sync state when props change
+    if (item.acStatus && item.acStatus !== currentStatus && !isUpdating) {
+        setCurrentStatus(item.acStatus)
+    }
 
     const days = daysUntil(item.nextDue)
     const overdue = days !== null && days <= 0
@@ -89,6 +96,50 @@ function CarpetRow({ item, ac, isFirst, isLast, rowSpan, onRefresh }: { item: Ca
                 <td style={{ padding: '10px 16px', color: item.coatroom ? C.text : C.light }}>{item.coatroom || '—'}</td>
                 <td style={{ padding: '10px 16px', color: C.text, maxWidth: 150, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={item.remark || ''}>
                     {item.remark || <span style={{ color: C.light }}>—</span>}
+                </td>
+                <td style={{ padding: '10px 16px' }}>
+                    <button
+                        disabled={isUpdating}
+                        onClick={async () => {
+                            const newStatus = currentStatus === 'PROLONG' ? 'ACTIVE' : 'PROLONG'
+                            setCurrentStatus(newStatus)
+                            setIsUpdating(true)
+                            try {
+                                const res = await fetch(`/api/carpet-items/${item.id}`, {
+                                    method: 'PUT',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ acStatus: newStatus }),
+                                })
+                                if (!res.ok) {
+                                    setCurrentStatus(currentStatus) // revert back on failure
+                                } else {
+                                    onRefresh()
+                                }
+                            } catch (err) {
+                                console.error('Failed to toggle status:', err)
+                                setCurrentStatus(currentStatus) // revert back on error
+                            } finally {
+                                setIsUpdating(false)
+                            }
+                        }}
+                        style={{
+                            display: 'inline-flex', alignItems: 'center', gap: 6,
+                            padding: '4px 10px', borderRadius: 12, fontSize: 11, fontWeight: 700,
+                            background: currentStatus === 'PROLONG' ? C.warningLight : C.greenLight,
+                            color: currentStatus === 'PROLONG' ? C.warningDark : C.green,
+                            border: `1px solid ${currentStatus === 'PROLONG' ? C.warningBorder : C.greenBorder}`,
+                            cursor: isUpdating ? 'wait' : 'pointer',
+                            opacity: isUpdating ? 0.7 : 1,
+                            outline: 'none', transition: 'all 0.2s ease'
+                        }}
+                        title="Klik untuk mengubah status"
+                    >
+                        <span style={{
+                            width: 6, height: 6, borderRadius: '50%',
+                            background: currentStatus === 'PROLONG' ? C.warningDark : C.green
+                        }} />
+                        {currentStatus === 'PROLONG' ? 'PROLONG' : 'ACTIVE'}
+                    </button>
                 </td>
                 <td style={{ padding: '10px 16px' }}>
                     {item.replacementHistory && item.replacementHistory.length > 0 ? (

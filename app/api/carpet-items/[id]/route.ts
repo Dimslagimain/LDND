@@ -6,12 +6,13 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
     try {
         const { id } = await params
         const body = await req.json()
-        const { remark, vendor, coatroom } = body
+        const { remark, acStatus, vendor, coatroom } = body
 
         const updated = await prisma.carpetItem.update({
             where: { id },
             data: {
                 ...(remark !== undefined && { remark }),
+                ...(acStatus !== undefined && { acStatus }),
                 ...(vendor !== undefined && { vendor }),
                 ...(coatroom !== undefined && { coatroom }),
             },

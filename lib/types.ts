@@ -21,6 +21,7 @@ export interface CarpetItem {
     lastDone: string | null
     nextDue: string | null
     remark: string | null
+    acStatus: string | null
     coatroom: string | null
     vendor: string | null
     createdAt: string
