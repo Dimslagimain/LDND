@@ -1,1 +1,0 @@
-ALTER TABLE carpet_items ADD COLUMN ac_status VARCHAR(20) DEFAULT 'ACTIVE';
