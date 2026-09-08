@@ -113,7 +113,7 @@ function CarpetRow({ item, ac, isFirst, isLast, rowSpan, onRefresh }: { item: Ca
                                 if (!res.ok) {
                                     setCurrentStatus(currentStatus) // revert back on failure
                                 } else {
-                                    onRefresh()
+                                    item.acStatus = newStatus
                                 }
                             } catch (err) {
                                 console.error('Failed to toggle status:', err)
