@@ -41,6 +41,14 @@ export default function DataPage() {
     const gaCount = aircraft.filter(a => a.airline === 'GA').length
     const qgCount = aircraft.filter(a => a.airline === 'QG').length
 
+    const [now, setNow] = useState<Date | null>(null)
+
+    useEffect(() => {
+        setNow(new Date())
+        const timer = setInterval(() => setNow(new Date()), 1000)
+        return () => clearInterval(timer)
+    }, [])
+
     return (
         <div style={{ minHeight: '100vh', background: C.bg }}>
             {/* Header */}
@@ -63,6 +71,16 @@ export default function DataPage() {
                         </div>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                        {now && (
+                            <div style={{ textAlign: 'right', marginRight: 4 }}>
+                                <p style={{ fontSize: 13, fontWeight: 600, color: C.text, lineHeight: 1.2 }}>
+                                    {now.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+                                </p>
+                                <p style={{ fontSize: 11, color: C.muted, fontFamily: 'monospace', lineHeight: 1.2 }}>
+                                    {now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' })} WIB
+                                </p>
+                            </div>
+                        )}
                         <ThemeToggle />
                         <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 10, fontSize: 13, fontWeight: 600, color: C.blue, textDecoration: 'none', background: C.blueLight, border: `1px solid ${C.blueBorder}` }}>
                             <LayoutDashboard size={16} strokeWidth={2.5} />
