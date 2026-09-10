@@ -9,15 +9,22 @@ export async function GET() {
     return NextResponse.json({ error: 'Akses ditolak' }, { status: 403 })
   }
 
-  const users = await prisma.user.findMany({
+const users = await prisma.user.findMany({
   select: {
     id: true,
     username: true,
     role: true,
   },
-  orderBy: {
-    username: 'asc',
-  },
+})
+
+const roleOrder: Record<string, number> = {
+  SUPERADMIN: 1,
+  ADMIN: 2,
+  USER: 3,
+}
+
+users.sort((a, b) => {
+  return (roleOrder[a.role] ?? 99) - (roleOrder[b.role] ?? 99)
 })
 
   return NextResponse.json(users)
