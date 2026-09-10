@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { ThemeProvider } from "../components/ThemeProvider";
+import { AuthProvider } from "@/lib/auth-context";
 import "./globals.css";
 
 const inter = Inter({
@@ -21,7 +22,9 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={inter.variable}>
         <ThemeProvider attribute="data-theme" defaultTheme="system" enableSystem>
-          {children}
+          <AuthProvider>
+            {children}
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>

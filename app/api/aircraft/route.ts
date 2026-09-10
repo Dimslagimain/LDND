@@ -1,11 +1,15 @@
 import { NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
+import { requireAuth, requireRole } from '@/lib/auth'
 
 export const dynamic = 'force-dynamic'
 
 // GET — List all aircraft with carpet items & replacement history
 export async function GET() {
     try {
+        if (!await requireAuth()) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+        }
         const aircraft = await prisma.aircraft.findMany({
             include: {
                 carpetItems: {
@@ -27,6 +31,9 @@ export async function GET() {
 // POST — Create new aircraft with auto-generated carpet items
 export async function POST(req: Request) {
     try {
+        if (!await requireRole('ADMIN')) {
+            return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+        }
         const body = await req.json()
         const { acType, acTypeGroup, registration, airline } = body
 

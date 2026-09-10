@@ -1,9 +1,13 @@
 import { NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
+import { requireRole } from '@/lib/auth'
 
 // PUT — Update carpet item fields (remark, vendor, coatroom)
 export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
     try {
+        if (!await requireRole('ADMIN')) {
+            return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+        }
         const { id } = await params
         const body = await req.json()
         const { remark, acStatus, vendor, coatroom } = body

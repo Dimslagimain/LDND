@@ -1,10 +1,14 @@
 import { NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
 import { PREMATURE_GRACE_DAYS } from '@/lib/constants'
+import { requireRole } from '@/lib/auth'
 
 // POST — Record a new Done (replacement) for a carpet item
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
     try {
+        if (!await requireRole('ADMIN')) {
+            return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+        }
         const { id } = await params
         const body = await req.json()
         const { doneDate } = body

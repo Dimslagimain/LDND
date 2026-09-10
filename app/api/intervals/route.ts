@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
+import { requireRole } from '@/lib/auth'
 
 export const dynamic = 'force-dynamic'
 
@@ -19,6 +20,9 @@ export async function GET() {
 // POST — Update interval master & cascade changes to all affected aircraft
 export async function POST(req: Request) {
     try {
+        if (!await requireRole('ADMIN')) {
+            return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+        }
         const body = await req.json()
         const { acTypeGroup, carpetType, interval } = body
 

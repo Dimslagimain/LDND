@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
+import { requireRole } from '@/lib/auth'
 
 export const dynamic = 'force-dynamic'
 
@@ -22,6 +23,9 @@ export async function GET() {
 
 export async function PUT(req: Request) {
     try {
+        if (!await requireRole('ADMIN')) {
+            return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+        }
         const body = await req.json()
         const { airline, qty, unit } = body as { airline: string; qty: number; unit: string }
 

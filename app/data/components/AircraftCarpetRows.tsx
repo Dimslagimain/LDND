@@ -7,7 +7,7 @@ import { NEAR_DUE_DAYS } from '@/lib/constants'
 import { AircraftData, CarpetItemData } from '../types'
 import { AddDoneModal, EditDetailsModal, Overlay } from './Modals'
 
-export function AircraftCarpetRows({ ac, onRefresh }: { ac: AircraftData; onRefresh: () => void }) {
+export function AircraftCarpetRows({ ac, onRefresh, canEdit }: { ac: AircraftData; onRefresh: () => void; canEdit: boolean }) {
     if (ac.carpetItems.length === 0) {
         return (
             <tr style={{ background: C.surface, borderBottom: `4px solid ${C.border}` }}>
@@ -15,13 +15,13 @@ export function AircraftCarpetRows({ ac, onRefresh }: { ac: AircraftData; onRefr
                     <div style={{ fontWeight: 800, fontSize: 16, fontFamily: 'monospace', color: C.text }}>{ac.registration}</div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8 }}>
                         <div style={{ fontSize: 11, fontWeight: 700, color: C.blue, background: C.blueLight, padding: '4px 10px', borderRadius: 12, whiteSpace: 'nowrap' }}>{ac.acType}</div>
-                        <button onClick={async () => {
+                        {canEdit && <button onClick={async () => {
                             if (!confirm(`Hapus ${ac.registration}? Semua data akan hilang.`)) return
                             await fetch(`/api/aircraft/${ac.id}`, { method: 'DELETE' })
                             onRefresh()
                         }} style={{ padding: 6, borderRadius: 8, border: `1px solid ${C.dangerBorder}`, background: C.dangerLight, color: C.danger, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }} title="Hapus Pesawat">
                             <Trash2 size={14} />
-                        </button>
+                        </button>}
                     </div>
                 </td>
                 <td colSpan={9} style={{ textAlign: 'center', padding: '16px', color: C.muted, fontStyle: 'italic', fontSize: 13 }}>Belum ada data carpet...</td>
@@ -32,13 +32,13 @@ export function AircraftCarpetRows({ ac, onRefresh }: { ac: AircraftData; onRefr
     return (
         <>
             {ac.carpetItems.map((ci, index) => (
-                <CarpetRow key={ci.id} item={ci} ac={ac} isFirst={index === 0} isLast={index === ac.carpetItems.length - 1} rowSpan={ac.carpetItems.length} onRefresh={onRefresh} />
+                <CarpetRow key={ci.id} item={ci} ac={ac} isFirst={index === 0} isLast={index === ac.carpetItems.length - 1} rowSpan={ac.carpetItems.length} onRefresh={onRefresh} canEdit={canEdit} />
             ))}
         </>
     )
 }
 
-function CarpetRow({ item, ac, isFirst, isLast, rowSpan, onRefresh }: { item: CarpetItemData; ac: AircraftData; isFirst: boolean; isLast: boolean; rowSpan: number; onRefresh: () => void }) {
+function CarpetRow({ item, ac, isFirst, isLast, rowSpan, onRefresh, canEdit }: { item: CarpetItemData; ac: AircraftData; isFirst: boolean; isLast: boolean; rowSpan: number; onRefresh: () => void; canEdit: boolean }) {
     const [showDoneModal, setShowDoneModal] = useState(false)
     const [showEditModal, setShowEditModal] = useState(false)
     const [showHistoryModal, setShowHistoryModal] = useState(false)
@@ -66,13 +66,13 @@ function CarpetRow({ item, ac, isFirst, isLast, rowSpan, onRefresh }: { item: Ca
                         <div style={{ fontWeight: 800, fontSize: 16, fontFamily: 'monospace', color: C.text }}>{ac.registration}</div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8 }}>
                             <div style={{ fontSize: 11, fontWeight: 700, color: C.blue, background: C.blueLight, padding: '4px 10px', borderRadius: 12, whiteSpace: 'nowrap' }}>{ac.acType}</div>
-                            <button onClick={async () => {
+                            {canEdit && <button onClick={async () => {
                                 if (!confirm(`Hapus ${ac.registration}? Semua data akan hilang.`)) return
                                 await fetch(`/api/aircraft/${ac.id}`, { method: 'DELETE' })
                                 onRefresh()
                             }} style={{ padding: 6, borderRadius: 8, border: `1px solid ${C.dangerBorder}`, background: C.dangerLight, color: C.danger, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }} title="Hapus Pesawat">
                                 <Trash2 size={14} />
-                            </button>
+                            </button>}
                         </div>
                     </td>
                 )}
@@ -80,7 +80,7 @@ function CarpetRow({ item, ac, isFirst, isLast, rowSpan, onRefresh }: { item: Ca
                     {item.carpetType}
                     <div style={{ fontSize: 11, color: C.muted, fontWeight: 500, marginTop: 2 }}>{item.intervalMonths} bln</div>
                 </td>
-                <td style={{ padding: '10px 16px' }}>
+                <td className="data-history-cell" style={{ padding: '10px 6px' }}>
                     <span style={{
                         display: 'inline-block', padding: '4px 8px', borderRadius: 6, fontSize: 11, fontWeight: 700,
                         background: statusBg, color: statusColor, border: `1px solid ${statusBorder}`
@@ -99,8 +99,9 @@ function CarpetRow({ item, ac, isFirst, isLast, rowSpan, onRefresh }: { item: Ca
                 </td>
                 <td style={{ padding: '10px 16px' }}>
                     <button
-                        disabled={isUpdating}
+                        disabled={!canEdit || isUpdating}
                         onClick={async () => {
+                            if (!canEdit) return
                             const newStatus = currentStatus === 'PROLONG' ? 'ACTIVE' : 'PROLONG'
                             setCurrentStatus(newStatus)
                             setIsUpdating(true)
@@ -128,8 +129,8 @@ function CarpetRow({ item, ac, isFirst, isLast, rowSpan, onRefresh }: { item: Ca
                             background: currentStatus === 'PROLONG' ? C.warningLight : C.greenLight,
                             color: currentStatus === 'PROLONG' ? C.warningDark : C.green,
                             border: `1px solid ${currentStatus === 'PROLONG' ? C.warningBorder : C.greenBorder}`,
-                            cursor: isUpdating ? 'wait' : 'pointer',
-                            opacity: isUpdating ? 0.7 : 1,
+                            cursor: !canEdit ? 'not-allowed' : isUpdating ? 'wait' : 'pointer',
+                            opacity: !canEdit || isUpdating ? 0.7 : 1,
                             outline: 'none', transition: 'all 0.2s ease'
                         }}
                         title="Klik untuk mengubah status"
@@ -158,12 +159,12 @@ function CarpetRow({ item, ac, isFirst, isLast, rowSpan, onRefresh }: { item: Ca
                         }}>Tidak ada</span>
                     )}
                 </td>
-                <td style={{ padding: '10px 16px', textAlign: 'right' }}>
-                    <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
+                {canEdit && <td className="data-action-cell" style={{ padding: '10px 2px', textAlign: 'left' }}>
+                    <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-start', whiteSpace: 'nowrap' }}>
                         <button onClick={() => setShowDoneModal(true)} style={{ padding: '6px 10px', borderRadius: 6, border: 'none', background: C.green, color: '#fff', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>Done</button>
                         <button onClick={() => setShowEditModal(true)} style={{ padding: '6px 8px', borderRadius: 6, border: `1px solid ${C.border}`, background: C.surface, color: C.text, cursor: 'pointer', display: 'flex', alignItems: 'center' }} title="Edit Data"><Edit size={14} /></button>
                     </div>
-                </td>
+                </td>}
             </tr>
 
             {showHistoryModal && item.replacementHistory && (
