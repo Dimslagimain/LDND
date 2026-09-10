@@ -15,8 +15,6 @@ model Aircraft {
   airline      String    @db.VarChar(20)
   createdAt    DateTime? @default(now()) @map("created_at")
 
-  carpetItems  CarpetItem[]
-
   @@map("aircraft")
 }
 
@@ -28,13 +26,10 @@ model CarpetItem {
   lastDone       DateTime? @map("last_done") @db.Date
   nextDue        DateTime? @map("next_due") @db.Date
   remark         String?   @db.VarChar(50)
-  acStatus       String?   @default("ACTIVE") @map("ac_status") @db.VarChar(20)
+  createdAt      DateTime? @default(now()) @map("created_at")
   vendor         String?   @db.VarChar(50)
   coatroom       String?   @db.VarChar(50)
-  createdAt      DateTime? @default(now()) @map("created_at")
-
-  aircraft           Aircraft             @relation(fields: [aircraftId], references: [id], onDelete: Cascade)
-  replacementHistory ReplacementHistory[]
+  acStatus       String?   @default("ACTIVE") @map("ac_status") @db.VarChar(20)
 
   @@unique([aircraftId, carpetType])
   @@index([aircraftId])
@@ -49,8 +44,6 @@ model ReplacementHistory {
   doneDate     DateTime  @map("done_date") @db.Date
   isPremature  Boolean   @default(false) @map("is_premature")
   createdAt    DateTime? @default(now()) @map("created_at")
-
-  carpetItem CarpetItem @relation(fields: [carpetItemId], references: [id], onDelete: Cascade)
 
   @@index([carpetItemId])
   @@map("replacement_history")
@@ -77,18 +70,11 @@ model CarpetIntervalMaster {
   @@map("carpet_interval_master")
 }
 
-enum UserRole {
-  SUPERADMIN
-  ADMIN
-  USER
-}
-
 model User {
-  id        String    @id @default(uuid()) @db.Char(36)
-  username  String    @unique @db.VarChar(50)
-  password  String    @db.VarChar(255)
-  role      UserRole  @default(USER)
-  createdAt DateTime? @default(now()) @map("created_at")
+  id       String @id @default(uuid()) @db.Char(36)
+  username String @unique @db.VarChar(100)
+  password String @db.VarChar(255)
+  role     String @db.VarChar(20)
 
   @@map("users")
 }
