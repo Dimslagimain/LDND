@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
-import { verifyPassword, createSession, setSessionCookie } from '@/lib/auth'
+import { verifyPassword, createSession, setSessionCookie, type UserRole } from '@/lib/auth'
 
 export async function POST(request: NextRequest) {
   try {
@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Username atau password salah' }, { status: 401 })
     }
 
-    const sessionUser = { id: user.id, username: user.username, role: user.role }
+    const sessionUser = { id: user.id, username: user.username, role: user.role as UserRole }
     const token = await createSession(sessionUser)
     const cookie = setSessionCookie(token)
 

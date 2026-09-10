@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
-import { createSession, getSession, hashPassword, setSessionCookie, verifyPassword } from '@/lib/auth'
+import { createSession, getSession, hashPassword, setSessionCookie, verifyPassword, type UserRole } from '@/lib/auth'
 
 export async function PUT(request: Request) {
   const session = await getSession()
@@ -43,7 +43,13 @@ export async function PUT(request: Request) {
     })
 
     const response = NextResponse.json({ user: updated })
-    response.cookies.set(setSessionCookie(await createSession(updated)))
+    const sessionUser = {
+     id: updated.id,
+     username: updated.username,
+     role: updated.role as UserRole,
+    }
+
+response.cookies.set(setSessionCookie(await createSession(sessionUser)))
     return response
   } catch (error: unknown) {
     if (error && typeof error === 'object' && 'code' in error && error.code === 'P2002') {

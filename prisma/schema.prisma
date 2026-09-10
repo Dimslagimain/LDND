@@ -8,28 +8,33 @@ datasource db {
 }
 
 model Aircraft {
-  id           String    @id @default(uuid()) @db.Char(36)
-  acType       String    @map("ac_type") @db.VarChar(100)
-  acTypeGroup  String    @map("ac_type_group") @db.VarChar(50)
-  registration String    @unique @db.VarChar(20)
-  airline      String    @db.VarChar(20)
-  createdAt    DateTime? @default(now()) @map("created_at")
+  id           String       @id @default(uuid()) @db.Char(36)
+  acType       String       @map("ac_type") @db.VarChar(100)
+  acTypeGroup  String       @map("ac_type_group") @db.VarChar(50)
+  registration String       @unique @db.VarChar(20)
+  airline      String       @db.VarChar(20)
+  createdAt    DateTime?    @default(now()) @map("created_at")
+
+  carpetItems  CarpetItem[]
 
   @@map("aircraft")
 }
 
 model CarpetItem {
-  id             String    @id @default(uuid()) @db.Char(36)
-  aircraftId     String    @map("aircraft_id") @db.Char(36)
-  carpetType     String    @map("carpet_type") @db.VarChar(50)
-  intervalMonths Int       @map("interval_months")
-  lastDone       DateTime? @map("last_done") @db.Date
-  nextDue        DateTime? @map("next_due") @db.Date
-  remark         String?   @db.VarChar(50)
-  createdAt      DateTime? @default(now()) @map("created_at")
-  vendor         String?   @db.VarChar(50)
-  coatroom       String?   @db.VarChar(50)
-  acStatus       String?   @default("ACTIVE") @map("ac_status") @db.VarChar(20)
+  id                  String               @id @default(uuid()) @db.Char(36)
+  aircraftId          String               @map("aircraft_id") @db.Char(36)
+  carpetType          String               @map("carpet_type") @db.VarChar(50)
+  intervalMonths      Int                  @map("interval_months")
+  lastDone            DateTime?            @map("last_done") @db.Date
+  nextDue             DateTime?            @map("next_due") @db.Date
+  remark              String?              @db.VarChar(50)
+  createdAt           DateTime?            @default(now()) @map("created_at")
+  vendor              String?              @db.VarChar(50)
+  coatroom            String?              @db.VarChar(50)
+  acStatus            String?              @default("ACTIVE") @map("ac_status") @db.VarChar(20)
+
+  aircraft            Aircraft             @relation(fields: [aircraftId], references: [id])
+  replacementHistory  ReplacementHistory[]
 
   @@unique([aircraftId, carpetType])
   @@index([aircraftId])
@@ -38,12 +43,14 @@ model CarpetItem {
 }
 
 model ReplacementHistory {
-  id           String    @id @default(uuid()) @db.Char(36)
-  carpetItemId String    @map("carpet_item_id") @db.Char(36)
-  doneNumber   Int       @map("done_number")
-  doneDate     DateTime  @map("done_date") @db.Date
-  isPremature  Boolean   @default(false) @map("is_premature")
-  createdAt    DateTime? @default(now()) @map("created_at")
+   id           String      @id @default(uuid()) @db.Char(36)
+  carpetItemId String      @map("carpet_item_id") @db.Char(36)
+  doneNumber   Int         @map("done_number")
+  doneDate     DateTime    @map("done_date") @db.Date
+  isPremature  Boolean     @default(false) @map("is_premature")
+  createdAt    DateTime?   @default(now()) @map("created_at")
+
+  carpetItem   CarpetItem  @relation(fields: [carpetItemId], references: [id])
 
   @@index([carpetItemId])
   @@map("replacement_history")
