@@ -41,13 +41,21 @@ Pastikan perangkat sudah memiliki:
 
 ## Instalasi
 
-### 1. Masuk ke folder project
+### 1. Clone repository
+
+Clone repository project dari GitHub:
+
+```bash
+git clone https://github.com/Dimslagimain/LDND.git
+```
+
+### 2. Masuk ke folder project
 
 ```bash
 cd LDND
 ```
 
-### 2. Install dependency
+### 3. Install dependency
 
 ```bash
 npm install
@@ -56,7 +64,7 @@ npm install
 Perintah `npm install` juga akan menjalankan `prisma generate` melalui script
 `postinstall`.
 
-### 3. Siapkan database
+### 4. Siapkan database
 
 Buat database kosong bernama `ldnd` pada MySQL atau MariaDB. Contoh:
 
@@ -67,7 +75,7 @@ CREATE DATABASE ldnd;
 Jika menggunakan nama database atau kredensial yang berbeda, sesuaikan nilai
 `DATABASE_URL` pada langkah berikutnya.
 
-### 4. Buat file environment
+### 5. Buat file environment
 
 Buat file `.env` di folder utama project:
 
@@ -86,7 +94,7 @@ Jika user MySQL tidak memiliki password, formatnya dapat berupa:
 DATABASE_URL="mysql://root@localhost:3306/ldnd"
 ```
 
-### 5. Buat tabel database
+### 6. Buat tabel database
 
 Sinkronkan schema Prisma ke database:
 
@@ -95,7 +103,7 @@ npx prisma db push
 npx prisma generate
 ```
 
-### 6. Isi user awal
+### 7. Isi user awal
 
 Jalankan seed untuk membuat akun awal:
 
